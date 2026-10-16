@@ -1,0 +1,97 @@
+# Mz909 - an emulation of the TR-909 Rhythm Composer
+# Copyright (C) 2026 Simon Moscrop
+#
+# This program is free software: you can redistribute it and/or modify it under the terms of
+# the GNU Affero General Public License as published by the Free Software Foundation, version 3.
+# It is distributed WITHOUT ANY WARRANTY; see the LICENSE file for the full terms.
+
+#
+# Build every release's downloads on GitHub and attach them to it, so a release never goes
+# out without its installer.
+#
+# Triggered by pushing a version tag (git push origin v0.2.0), or by creating a release with
+# a new tag on GitHub, which pushes the tag. If the release already exists the files are
+# added to it; if not, a draft is made with the notes in docs/releases/<tag>.md, to read over
+# and publish. Either way the release is then read back from GitHub, and the run fails unless
+# the installer and both zips are on it.
+#
+# If a run fails, the release has no installer: fix the cause, then run this workflow again
+# from the Actions tab with the tag, which rebuilds and reattaches the downloads.
+#
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "An existing tag to rebuild the downloads for, e.g. v0.2.0"
+        required: true
+
+permissions:
+  contents: write
+
+env:
+  TAG: ${{ inputs.tag || github.ref_name }}
+  # The JUCE the plugin is built and tested against. Move it on deliberately, not by accident.
+  JUCE_TAG: "9.0.2"
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      # CMakeLists.txt expects JUCE beside the repository.
+      - name: JUCE
+        run: git clone --depth 1 --branch $env:JUCE_TAG https://github.com/juce-framework/JUCE ../JUCE
+
+      - name: The tag matches the version in CMakeLists.txt
+        run: |
+          if ((Get-Content CMakeLists.txt -Raw) -notmatch "project\(Mz909 VERSION ([0-9.]+)") { throw "no version in CMakeLists.txt" }
+          if ("v$($Matches[1])" -ne $env:TAG) { throw "tag $env:TAG but CMakeLists.txt says $($Matches[1]) - bump the version before tagging" }
+          "VERSION=$($Matches[1])" >> $env:GITHUB_ENV
+
+      - name: Inno Setup
+        run: |
+          if (-not (Test-Path "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe")) { choco install innosetup -y --no-progress }
+
+      - name: Build, check and package
+        run: ./build.ps1 -Release
+
+      - name: Attach to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $files = "Setup.exe", "VST3.zip", "Standalone.zip" | ForEach-Object { "dist/Mz909-$env:VERSION-win64-$_" }
+
+          gh release view $env:TAG *> $null
+          if ($LASTEXITCODE -eq 0) {
+              gh release upload $env:TAG @files --clobber
+          } else {
+              $notes = "docs/releases/$env:TAG.md"
+              if (Test-Path $notes) { $from = @("--notes-file", $notes) } else { $from = @("--generate-notes") }
+              gh release create $env:TAG @files --draft --title "Mz909 $env:VERSION" @from
+          }
+          if ($LASTEXITCODE -ne 0) { throw "could not attach the files to $env:TAG" }
+
+      # Read the release back from GitHub, rather than trusting that the upload worked: the
+      # run fails, and says so, unless the release really carries its installer and zips.
+      - name: The release has its installer
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $assets = (gh release view $env:TAG --json assets | ConvertFrom-Json).assets
+          if ($LASTEXITCODE -ne 0) { throw "could not read release $env:TAG back" }
+
+          $want = @{ "Setup.exe" = 1MB; "VST3.zip" = 1MB; "Standalone.zip" = 1MB }
+          foreach ($kind in $want.Keys) {
+              $name = "Mz909-$env:VERSION-win64-$kind"
+              $a = $assets | Where-Object { $_.name -eq $name }
+              if (-not $a)                     { throw "release $env:TAG has no $name" }
+              if ($a.size -lt $want[$kind])    { throw "$name on release $env:TAG is only $($a.size) bytes" }
+              "ok  -  {0,-34} {1,5:N1} MB" -f $name, ($a.size / 1MB)
+          }
