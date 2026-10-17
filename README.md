@@ -49,6 +49,26 @@ there. Some need the folder added to their plugin paths once; in Ableton Live it
 The standalone app, `Mz909.exe`, plays without a DAW. Its *Options* button chooses the audio
 and MIDI devices.
 
+### macOS (beta)
+
+Download `Mz909-<version>-macOS-beta.zip` from the
+[releases page](https://github.com/simozzer/Mz909/releases) and unzip it. It holds the VST3, an Audio Unit (for Logic and GarageBand) and the standalone app,
+for Apple Silicon and Intel Macs on macOS 11 or later.
+
+They aren't signed by Apple, which takes a paid developer account, so macOS won't open them
+with a double-click. Install them from Terminal instead. Type `bash ` (with the space), drag
+`install.sh` from the unzipped folder into the Terminal window, and press Return:
+
+    bash ~/Downloads/Mz909-<version>-macOS-beta/install.sh
+
+It copies everything into your own Library folders, with no password needed, and clears the
+"downloaded from the internet" flag that would stop your DAW loading the plugin. Then rescan
+plugins in your DAW. `READ ME FIRST.txt` in the zip explains how to install by hand instead.
+
+It's a beta: built and checked on GitHub's Macs, including Apple's own Audio Unit validator,
+but not yet tried on a real one. If something doesn't work, please
+[open an issue](https://github.com/simozzer/Mz909/issues).
+
 ## Building
 
 Needs Visual Studio 2022+ with *Desktop development with C++*, and JUCE checked out beside
@@ -74,6 +94,8 @@ on GitHub, and attaches the installer and zips to a draft release with those not
 read over and publish. It refuses a tag that disagrees with `CMakeLists.txt`. It then reads
 the release back from GitHub and fails unless the installer and both zips are on it. If it
 fails, fix the cause and run the *release* workflow again from the Actions tab with the tag.
+Once the Windows job has made the draft, a Mac job adds `Mz909-<version>-macOS-beta.zip` to it
+(`.github/workflows/mac.yml`, which also runs on every push to `main` as a check).
 
 ## Layout
 
