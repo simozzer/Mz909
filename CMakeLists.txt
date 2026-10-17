@@ -1,5 +1,5 @@
 # Mz909 - an emulation of the TR-909 Rhythm Composer
-# Copyright (C) 2026 Simon Moscrop
+# Created by Simon Moscrop
 #
 # This program is free software: you can redistribute it and/or modify it under the terms of
 # the GNU Affero General Public License as published by the Free Software Foundation, version 3.
@@ -46,7 +46,7 @@ set(VST3_DESTINATION "${VST3_DEFAULT}" CACHE PATH "Where to install the built VS
 # The copyright, written down once: the binaries' version resource, the panel, and through
 # build.ps1 the installer and the release READMEs all take it from here.
 #
-set(MZ909_COPYRIGHT "Copyright (C) 2026 Simon Moscrop")
+set(MZ909_COPYRIGHT "Created by Simon Moscrop")
 
 set(MZ909_FORMATS VST3 Standalone)
 if(APPLE)

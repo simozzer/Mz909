@@ -1,5 +1,5 @@
 // Mz909 - an emulation of the TR-909 Rhythm Composer
-// Copyright (C) 2026 Simon Moscrop
+// Created by Simon Moscrop
 //
 // This program is free software: you can redistribute it and/or modify it under the terms of
 // the GNU Affero General Public License as published by the Free Software Foundation, version 3.
@@ -446,7 +446,7 @@ void Panel::paint(juce::Graphics& g)
                14, designHeight - 36, designWidth - 28, 24, juce::Justification::centredLeft);
 
     // from CMakeLists.txt, with the (C) the version resource needs made a proper sign
-    g.drawText(juce::String(MZ909_COPYRIGHT).replace("(C)", juce::String::fromUTF8("\xc2\xa9")),
+    g.drawText(juce::String(MZ909_COPYRIGHT),
                14, designHeight - 36, designWidth - 28, 24, juce::Justification::centredRight);
 }
 
