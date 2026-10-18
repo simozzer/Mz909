@@ -316,6 +316,20 @@ Panel::Panel(Mz909Processor& p) : processor(p)
     };
     addAndMakeVisible(presetBox);
 
+    //
+    // Where to come back to: the version this is, and the page the next one will be on.
+    // Nothing here checks for updates by itself - the plugin never goes online unasked.
+    // It takes no keyboard focus, or a host's space bar could open it rather than play.
+    //
+    projectLink.setButtonText("Mz909 " JucePlugin_VersionString "  -  github.com/simozzer/Mz909");
+    projectLink.setURL(juce::URL("https://github.com/simozzer/Mz909"));
+    projectLink.setFont(juce::FontOptions(12.0f), false, juce::Justification::centredRight);
+    projectLink.setColour(juce::HyperlinkButton::textColourId, colours::dim);
+    projectLink.setTooltip("The project's page: the latest version and what's new in it, the source, "
+                           "and where to report a problem. Opens in your browser.");
+    projectLink.setWantsKeyboardFocus(false);
+    addAndMakeVisible(projectLink);
+
     // start the lights from where the engine is, so opening the editor does not flash them
     for (int v = 0; v < Voice::count; ++v)
         seenHits[v] = processor.engineView().hitCount(v);
@@ -376,6 +390,7 @@ void Panel::resized()
     constexpr int title = 44, knobHeight = 76, padTop = 358, padWidth = 38, padHeight = 70;
 
     presetBox.setBounds(designWidth - margin - 220, 14, 220, 26);
+    projectLink.setBounds(presetBox.getX() - 16 - 420, presetBox.getY(), 420, presetBox.getHeight());
 
     int x = margin;
     for (auto& c : columns)

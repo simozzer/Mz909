@@ -160,6 +160,9 @@ private:
 
     juce::TextButton accentButton { "ACCENT" };
     juce::ComboBox presetBox;
+
+    // This version, and where to find the next: the project's page, beside the presets.
+    juce::HyperlinkButton projectLink;
 };
 
 class Mz909Editor final : public juce::AudioProcessorEditor
