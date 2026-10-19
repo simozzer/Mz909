@@ -1,0 +1,65 @@
+Mz909 for Linux - BETA
+======================
+
+An emulation of the Roland TR-909 Rhythm Composer: a VST3, an LV2 and a
+standalone app. Independent - not affiliated with Roland.
+Free and open source (AGPLv3). Created by Simon Moscrop.
+
+For 64-bit x86 PCs: Ubuntu 22.04 or later, or another distribution as new.
+
+This is a beta. It's built on GitHub's Ubuntu machines and passes the same
+checks as the Windows version, but hasn't been tried much in real Linux hosts.
+If something doesn't work, please say so on
+https://github.com/simozzer/Mz909/issues
+
+
+INSTALLING - one command
+------------------------
+
+In a terminal, in this folder:
+
+  bash install.sh
+
+It copies everything into place inside your own home folder, with no password
+needed. Then rescan plug-ins in your DAW.
+
+
+INSTALLING BY HAND, if you'd rather
+-----------------------------------
+
+  Mz909.vst3   ->  ~/.vst3     (Bitwig, Reaper, Ardour, Carla, ...)
+  Mz909.lv2    ->  ~/.lv2      (Ardour, Carla, Qtractor, Zrythm, ...)
+  Mz909        ->  ~/.local/bin   (the standalone app: run Mz909)
+
+Use whichever your host prefers; most load both. They're the same plugin.
+
+
+IF IT WON'T LOAD
+----------------
+
+It needs a few libraries most desktops already have. On Ubuntu or Debian:
+
+  sudo apt install libasound2 libfreetype6 libfontconfig1 libx11-6 libxi6 \
+                   libxext6 libxinerama1 libxrandr2 libxcursor1 libxrender1
+
+(On Ubuntu 24.04 and later, libasound2 is called libasound2t64.)
+
+The standalone app plays through ALSA, which PipeWire and PulseAudio both
+provide: pick the output under Options. Under WSL, which has no sound card,
+ALSA needs PulseAudio's plugin first:
+
+  sudo apt install libasound2-plugins
+  printf 'pcm.!default pulse\nctl.!default pulse\n' > ~/.asoundrc
+
+
+REMOVING IT
+-----------
+
+Delete what you copied. Nothing else is installed anywhere.
+
+
+MORE
+----
+
+README.md is the manual. The source, the Windows and Mac versions and every
+release: https://github.com/simozzer/Mz909

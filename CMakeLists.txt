@@ -7,7 +7,7 @@
 
 cmake_minimum_required(VERSION 3.22)
 
-project(Mz909 VERSION 0.2.0 LANGUAGES C CXX)
+project(Mz909 VERSION 0.3.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -51,6 +51,8 @@ set(MZ909_COPYRIGHT "Created by Simon Moscrop")
 set(MZ909_FORMATS VST3 Standalone)
 if(APPLE)
     list(APPEND MZ909_FORMATS AU)
+elseif(UNIX)
+    list(APPEND MZ909_FORMATS LV2)   # what Linux hosts - Ardour, Carla, Qtractor - load best
 endif()
 
 #
@@ -67,6 +69,7 @@ juce_add_plugin(Mz909
     PRODUCT_NAME                "Mz909"
     PLUGIN_MANUFACTURER_CODE    Smoz          # never change - see above
     PLUGIN_CODE                 Tr09          # never change - see above
+    LV2URI                      "https://github.com/simozzer/Mz909"   # never change - an LV2's identity
 
     # JUCE does not inherit this from project().
     VERSION                     "${PROJECT_VERSION}"
